@@ -23,6 +23,9 @@ const envSchema = z.object({
 
   // Cron
   CRON_SECRET: z.string().min(32, "CRON_SECRET must be at least 32 characters"),
+
+  // CORS
+  ALLOWED_ORIGINS: z.string().default("*"),
 });
 
 export type Env = z.infer<typeof envSchema>;
