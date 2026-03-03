@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db, videos } from "@videokit/db";
 import { eq, and } from "drizzle-orm";

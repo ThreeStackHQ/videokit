@@ -1,7 +1,9 @@
 export const dynamic = "force-dynamic";
 
-import { handler } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-// handler is { GET: async fn, POST: async fn } — export each method
-export const GET = handler.GET;
-export const POST = handler.POST;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handler = NextAuth(authOptions as any);
+
+export { handler as GET, handler as POST };

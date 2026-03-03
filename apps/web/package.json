@@ -10,6 +10,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@auth/core": "^0.34.3",
+    "@auth/drizzle-adapter": "^1.11.1",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -25,14 +27,17 @@
     "@videokit/db": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.36.0",
+    "drizzle-orm": "^0.36.4",
     "lucide-react": "^0.576.0",
     "next": "14.2.18",
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.6",
+    "postgres": "^3.4.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^15.0.0",
+    "resend": "^6.9.3",
+    "stripe": "^20.4.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { db, videoPlays, videoGates, videos } from "@videokit/db";
 import { eq, and, sql, count, avg, countDistinct } from "drizzle-orm";
