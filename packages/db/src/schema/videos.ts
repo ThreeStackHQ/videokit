@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, pgEnum, integer, bigint, timestamp, jsonb, real } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, pgEnum, integer, bigint, timestamp, jsonb, real, boolean } from "drizzle-orm/pg-core";
 import { workspaces } from "./workspaces";
 
 export const videoStatusEnum = pgEnum("video_status", ["uploading", "ready"]);
@@ -54,6 +54,8 @@ export const videos = pgTable("videos", {
     promptText: "Enter your email to watch",
     webhookUrl: null,
   }),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  r2DeletionScheduled: boolean("r2_deletion_scheduled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { withCors, optionsResponse } from "@/lib/cors";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { validateMagicBytes } from "@/lib/magic-bytes";
-
-// import { getServerSession } from "next-auth";
+import { resolveWorkspaceFromApiKey, STORAGE_LIMITS } from "@/lib/api-key";
+import { db } from "@videokit/db";
+import { videos, workspaces } from "@videokit/db";
+import { eq, sql } from "drizzle-orm";
 
 function getClientIp(req: NextRequest): string | null {
   return (
@@ -34,6 +37,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
+  const workspace = await resolveWorkspaceFromApiKey(apiKey);
+  if (!workspace) {
+    return withCors(
+      NextResponse.json({ error: "Invalid API key" }, { status: 401 }),
+    );
+  }
+
   // Read the uploaded file
   const formData = await req.formData();
   const file = formData.get("file");
@@ -58,14 +68,53 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // File passed magic bytes check — proceed with R2 upload
-  // const workspaceId = ... (from session/API key)
-  // const key = `${workspaceId}/${crypto.randomUUID()}.${ext}`;
-  // await r2.putObject({ Bucket: env.R2_BUCKET_NAME, Key: key, Body: ... });
+  const fileSize = BigInt(file.size);
+  const limit = STORAGE_LIMITS[workspace.plan] ?? STORAGE_LIMITS["free"];
+
+  // Check storage limit
+  if (workspace.storageUsedBytes + fileSize > limit) {
+    return withCors(
+      NextResponse.json(
+        { error: "Storage limit exceeded", plan: workspace.plan, limitBytes: limit.toString() },
+        { status: 413 },
+      ),
+    );
+  }
+
+  const title = formData.get("title")?.toString() ?? "Untitled";
+  const r2Key = `${workspace.id}/${randomUUID()}.mp4`;
+
+  // In production, we'd upload to R2 here with a presigned PUT URL.
+  // For now, we insert the video record.
+  const [video] = await db
+    .insert(videos)
+    .values({
+      workspaceId: workspace.id,
+      title,
+      r2Key,
+      sizeBytes: fileSize,
+      mimeType: validation.mime ?? "video/mp4",
+      status: "ready",
+    })
+    .returning();
+
+  // Update workspace counters
+  await db
+    .update(workspaces)
+    .set({
+      storageUsedBytes: sql`${workspaces.storageUsedBytes} + ${fileSize}`,
+      videosCount: sql`${workspaces.videosCount} + 1`,
+    })
+    .where(eq(workspaces.id, workspace.id));
 
   return withCors(
     NextResponse.json(
-      { message: "Upload accepted", mime: validation.mime },
+      {
+        message: "Upload accepted",
+        mime: validation.mime,
+        videoId: video.id,
+        r2Key,
+      },
       { status: 201 },
     ),
   );
