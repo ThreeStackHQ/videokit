@@ -1,0 +1,87 @@
+import type { Video, Workspace, VideoAnalytics } from "./types";
+
+export const MOCK_WORKSPACE: Workspace = {
+  id: "ws_demo",
+  name: "Acme Corp",
+  slug: "acme",
+  plan: "INDIE",
+  ownerId: "user_1",
+};
+
+export const MOCK_VIDEOS: Video[] = [
+  {
+    id: "vid_1",
+    workspaceId: "ws_demo",
+    title: "Product Demo — Q1 2026",
+    description: "Full walkthrough of the new dashboard",
+    r2Key: "videos/vid_1/master.mp4",
+    thumbnailKey: "thumbnails/vid_1.jpg",
+    duration: 185,
+    fileSize: 52428800,
+    mimeType: "video/mp4",
+    primaryColor: "#0ea5e9",
+    autoplay: false,
+    loop: false,
+    ctaEnabled: true,
+    ctaButtonText: "Start Free Trial",
+    ctaButtonUrl: "https://example.com/trial",
+    ctaButtonColor: "#0ea5e9",
+    ctaTimestamp: 30,
+    emailGateEnabled: false,
+    playCount: 1243,
+    createdAt: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "vid_2",
+    workspaceId: "ws_demo",
+    title: "Onboarding Guide",
+    description: "Step-by-step onboarding for new users",
+    r2Key: "videos/vid_2/master.mp4",
+    thumbnailKey: "thumbnails/vid_2.jpg",
+    duration: 420,
+    fileSize: 102400000,
+    mimeType: "video/mp4",
+    primaryColor: "#8b5cf6",
+    autoplay: false,
+    loop: false,
+    ctaEnabled: false,
+    emailGateEnabled: true,
+    emailGatePrompt: "Enter your email to watch the full guide",
+    playCount: 567,
+    createdAt: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "vid_3",
+    workspaceId: "ws_demo",
+    title: "Feature Announcement — v2.0",
+    r2Key: "videos/vid_3/master.mp4",
+    primaryColor: "#10b981",
+    autoplay: false,
+    loop: false,
+    ctaEnabled: true,
+    ctaButtonText: "See What's New",
+    ctaButtonUrl: "https://example.com/v2",
+    ctaButtonColor: "#10b981",
+    ctaTimestamp: 45,
+    emailGateEnabled: false,
+    playCount: 89,
+    createdAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+export const MOCK_ANALYTICS: VideoAnalytics = {
+  totalPlays: 1243,
+  uniquePlays: 987,
+  avgCompletion: 68,
+  ctaClickRate: 24,
+  emailCaptures: 0,
+  playsOverTime: Array.from({ length: 14 }, (_, i) => ({
+    date: new Date(Date.now() - (13 - i) * 24 * 3600 * 1000)
+      .toISOString()
+      .slice(0, 10),
+    count: Math.floor(Math.random() * 120 + 20),
+  })),
+};
