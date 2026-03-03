@@ -24,6 +24,12 @@ export interface VideoKitInstance {
   destroy: () => void;
 }
 
+// Sanitize a string for safe use in CSS values / DOM text.
+// Strips characters that could break out of CSS context or inject HTML.
+function sanitizeCssValue(value: string): string {
+  return value.replace(/[^a-zA-Z0-9#(),.\-_%\s]/g, "");
+}
+
 function init(options: VideoKitOptions): VideoKitInstance {
   const container =
     typeof options.container === "string"
@@ -31,21 +37,35 @@ function init(options: VideoKitOptions): VideoKitInstance {
       : options.container ?? document.body;
 
   if (!container) {
-    throw new Error(`[VideoKit] Container not found: ${options.container}`);
+    // Use textContent-safe logging; never interpolate user strings into HTML
+    throw new Error("[VideoKit] Container not found");
   }
 
-  // Create wrapper
+  // Sanitize user-provided color to prevent CSS injection
+  const safeColor = options.primaryColor
+    ? sanitizeCssValue(options.primaryColor)
+    : "#3b82f6";
+
+  // Create wrapper — use DOM properties, never innerHTML
   const wrapper = document.createElement("div");
   wrapper.className = "videokit-player";
-  wrapper.style.cssText = `position:relative;width:100%;background:#000;border-radius:4px;overflow:hidden;`;
+  wrapper.style.position = "relative";
+  wrapper.style.width = "100%";
+  wrapper.style.background = "#000";
+  wrapper.style.borderRadius = "4px";
+  wrapper.style.overflow = "hidden";
 
-  // Create video element
+  // Create video element — use DOM properties, never innerHTML
   const video = document.createElement("video");
-  video.style.cssText = "width:100%;display:block;";
+  video.style.width = "100%";
+  video.style.display = "block";
   video.autoplay = options.autoplay ?? false;
   video.loop = options.loop ?? false;
   video.controls = true;
   video.playsInline = true;
+
+  // Store safe color as CSS custom property for CTA button styling
+  wrapper.style.setProperty("--vk-primary", safeColor);
 
   // Wire events
   video.addEventListener("loadedmetadata", () => options.onReady?.());
@@ -56,7 +76,8 @@ function init(options: VideoKitOptions): VideoKitInstance {
   wrapper.appendChild(video);
   container.appendChild(wrapper);
 
-  console.log(`[VideoKit] Initializing player for video: ${options.videoId}`);
+  // Safe: videoId is used in console.log (no DOM insertion)
+  console.log("[VideoKit] Initializing player for video:", options.videoId);
 
   return {
     play: () => void video.play(),
