@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { Suspense } from "react";
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration: "There is a problem with the server configuration.",
@@ -11,7 +12,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   Default: "An error occurred during sign in.",
 };
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const params = useSearchParams();
   const error = params.get("error") ?? "Default";
   const message = ERROR_MESSAGES[error] ?? ERROR_MESSAGES["Default"];
@@ -35,5 +36,19 @@ export default function AuthErrorPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-sky-500 border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <AuthErrorContent />
+    </Suspense>
   );
 }
